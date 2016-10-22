@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 
-dataDirectory = "C:\Users\NikaA\Desktop\DAT210x-master\Module2"
+dataDirectory = "C:\Users\Pavlos-Dell\Desktop\Further Learning\edX\Programming with Python for Data Science\DAT210x\Module2"
 os.chdir(dataDirectory)
 
 # TODO: Load up the 'tutorial.csv' dataset
