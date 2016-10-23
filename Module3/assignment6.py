@@ -42,9 +42,9 @@ plt.yticks(tick_marks, cor.columns)
 plt.show()
 
 
+# min value in dataframe
+minVal = wheatData.corr().abs().min(axis = 0).min()
 
-wheatData.drop(["asymmetry"], axis = 1).corr().abs().idxmin()
-
-
+wheatData.corr()[wheatData.corr().abs().iloc[:,:] == minVal]
 
 
