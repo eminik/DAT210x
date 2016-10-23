@@ -51,9 +51,54 @@ plt.show()
 
 
 
-## Andrew's Scale
+## Andrew's Curve
+#  An Andrew's curve helps you visualize higher dimensionality, multivariate data
+#  by plotting each observation as a curve. The feature values of the observation
+#  act as the coefficients of the curve, so observations with similar characteristics
+#  tend to group closer to each other. Due to this, Andrews curves have some use
+#  in outlier detection.
+#  
+# Similar to Parallel coordinates, every plotted feature must be numeric since the
+# curve equation is essentially the product of the observation's features vector
+# (transposed) and the vector (1/sqrt(2), sin(t), sin(2t), cos(2t), sin(3t), cos(3t))
+# to create a Fourier Series.
+
+from pandas.tools.plotting import andrews_curves
+
+plt.figure()
+andrews_curves(df, "target_names")
+plt.show()
+
+# One of the current weaknesses with the Pandas implementation is that every
+# single observation is charted. In the MATLAB version, you can specify a quantile
+# or probability distribution cutoff. This way, only the mean feature values for a 
+# specific group are plotted, with a transparent boundary around the cutoffs.
 
 
+## Imshow
+#  Matplotlib's .imshow() method generates an image based off of the normalized
+#  values stored in a matrix, or rectangular array of float64s. The properties
+#  of the generated image will depend on the dimensions and contents of the array
+#  passed in:
+#   - An [X, Y] shaped array will result in a grayscale image being generated
+#   - An [X, Y, 3] array results in full color image (1 channel for red, 1 channel
+#    for green and 1 for blue)
+#   - An [X, Y, 4] shaped array results in a full color image as before with an 
+#     an extra channel for alpha
+
+# Besides being a straightforward way to display .png and other images, the .imshow
+# method has quite a few other uses. When you use the .corr() method on your
+# dataset, Pandas calculates a correlation matrix for you that measures how close
+# to being linear the relatioship between any two features in your dataset are.
+import numpy as np
+
+df = pd.DataFrame(np.random.randn(1000, 5), columns = ['a', 'b', 'c', 'd', 'e'])
+df.corr()
+plt.imshow(df.corr(), cmap = plt.cm.Blues, interpolation = "nearest")
+tick_marks = [i for i in range(len(df.columns))]
+plt.xticks(tick_marks, df.columns, rotation = 'vertical')
+plt.yticks(tick_marks, df.columns)
+plt.show()
 
 
 
