@@ -2,13 +2,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
 import assignment2_helper as helper
+import numpy as np
 
 # Look pretty...
 matplotlib.style.use('ggplot')
 
 
 # Do * NOT * alter this line, until instructed!
-scaleFeatures = False
+scaleFeatures = True
 
 
 # TODO: Load up the dataset and remove any and all
@@ -17,12 +18,17 @@ scaleFeatures = False
 #
 # .. your code here ..
 
+kidneyDisData = pd.read_csv("Datasets/kidney_disease.csv")
+kidneyDisData = kidneyDisData.dropna()
+kidneyDisData.dtypes
+kidneyDisData.isnull().apply(np.sum, axis = 0)
+kidneyDisData = kidneyDisData.reset_index(drop = True)
 
 
 # Create some color coded labels; the actual label feature
 # will be removed prior to executing PCA, since it's unsupervised.
 # You're only labeling by color so you can see the effects of PCA
-labels = ['red' if i=='ckd' else 'green' for i in df.classification]
+labels = ['red' if i=='ckd' else 'green' for i in kidneyDisData.classification]
 
 
 # TODO: Use an indexer to select only the following columns:
@@ -30,7 +36,7 @@ labels = ['red' if i=='ckd' else 'green' for i in df.classification]
 #
 # .. your code here ..
 
-
+kidData2 = kidneyDisData.loc[:, ["bgr", "wc", "rc"]]
 
 # TODO: Print out and check your dataframe's dtypes. You'll probably
 # want to call 'exit()' after you print it out so you can stop the
@@ -45,7 +51,9 @@ labels = ['red' if i=='ckd' else 'green' for i in df.classification]
 #
 # .. your code here ..
 
-
+kidData2.dtypes
+kidData2 = kidData2.apply(pd.to_numeric, errors = "coerce", axis = 0)
+kidData2.dtypes
 
 # TODO: PCA Operates based on variance. The variable with the greatest
 # variance will dominate. Go ahead and peek into your data using a
@@ -57,14 +65,15 @@ labels = ['red' if i=='ckd' else 'green' for i in df.classification]
 # you probably didn't complete the previous step properly.
 #
 # .. your code here ..
-
-
+kidData2.describe()
+kidData2.head()
 
 # TODO: This method assumes your dataframe is called df. If it isn't,
 # make the appropriate changes. Don't alter the code in scaleFeatures()
 # just yet though!
 #
 # .. your code adjustment here ..
+df = kidData2.copy()
 if scaleFeatures: df = helper.scaleFeatures(df)
 
 
@@ -74,7 +83,12 @@ if scaleFeatures: df = helper.scaleFeatures(df)
 # and that the results of your transformation are saved in 'T'.
 #
 # .. your code here ..
+from sklearn.decomposition import PCA
+pca = PCA(n_components = 2)
 
+pca.fit(df)
+
+T = pca.transform(df)
 
 # Plot the transformed data as a scatter plot. Recall that transforming
 # the data will result in a NumPy NDArray. You can either use MatPlotLib

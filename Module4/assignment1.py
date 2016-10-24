@@ -10,7 +10,7 @@ from plyfile import PlyData, PlyElement
 # Every 100 data samples, we save 1. If things run too
 # slow, try increasing this number. If things run too fast,
 # try decreasing it... =)
-reduce_factor = 100
+reduce_factor = 50
 
 
 # Look pretty...
@@ -40,8 +40,12 @@ def do_PCA(armadillo):
   # you automatically. =)
   #
   # .. your code here ..
-
-  return None
+    from sklearn.decomposition import PCA
+    #import pandas as pd    
+    
+    pca = PCA(n_components = 2)
+    pca.fit(armadillo)
+    return pca.transform(armadillo)
 
 
 def do_RandomizedPCA(armadillo):
@@ -58,8 +62,12 @@ def do_RandomizedPCA(armadillo):
   # you automatically. =)
   #
   # .. your code here ..
-
-  return None
+    from sklearn.decomposition import RandomizedPCA
+    #import pandas as pd    
+    
+    pca = RandomizedPCA(n_components = 2)
+    pca.fit(armadillo)
+    return pca.transform(armadillo)
 
 
 
@@ -78,6 +86,7 @@ ax.scatter(armadillo.x, armadillo.y, armadillo.z, c='green', marker='.', alpha=0
 t1 = datetime.datetime.now()
 for i in range(5000): pca = do_PCA(armadillo)
 time_delta = datetime.datetime.now() - t1
+
 
 # Render the newly transformed PCA armadillo!
 if not pca is None:
