@@ -1,13 +1,20 @@
 import pandas as pd
 import numpy as np
+import os
 
+dataDirectory = "C:\Users\NikaA\Desktop\DAT210x-master\Module2"
+os.chdir(dataDirectory)
 
 #
 # TODO:
 # Load up the dataset, setting correct header labels.
 #
 # .. your code here ..
-
+dat = pd.read_csv(filepath_or_buffer = "Datasets\census.data",
+                  names = ['education', 'age', 'capital-gain', 'race', 
+                           'capital-loss', 'hours-per-week', 'sex', 
+                           'classification'],
+                  na_values = ['?'])
 
 
 #
@@ -24,8 +31,12 @@ import numpy as np
 # na_values when loading the dataframe.
 #
 # .. your code here ..
-
-
+dat.dtypes
+dat.classification.value_counts()
+dat.sex.value_counts()
+dat.age.value_counts()
+dat.education.value_counts()
+dat.count()
 
 #
 # TODO:
@@ -39,13 +50,18 @@ import numpy as np
 # for these somewhat ambigious features?
 #
 # .. your code here ..
+dat.head()
 
-
-
+dat['education_ordered'] = dat.education.astype('category', ordered = True,
+                                             categories = ["Preschool", "1st-4th", "5th-6th",
+                                                           "7th-8th", "9th", "10th", "11th",
+                                                           "12th", "HS-grad", "Some-college",
+                                                           "Bachelors", "Masters", "Doctorate"]).cat.codes
+dat = pd.get_dummies(dat, columns = ["race", "sex", "classification"])
 #
 # TODO:
 # Print out your dataframe
 #
 # .. your code here ..
-
+dat.head()
 
