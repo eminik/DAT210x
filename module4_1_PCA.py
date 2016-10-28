@@ -8,7 +8,7 @@ Created on Mon Oct 24 09:44:24 2016
 import os
 
 
-dataDir = "C:/Users/NikaA/Desktop/Dat210x-master/Module4"
+dataDir = "C:\Users\Pavlos-Dell\Desktop\Further Learning\edX\Programming with Python for Data Science\DAT210x\Module4"
 os.chdir(dataDir)
 
 

@@ -8,7 +8,7 @@ Created on Tue Oct 25 11:45:05 2016
 import os
 
 
-dataDir = "C:/Users/NikaA/Desktop/Dat210x-master/Module4"
+dataDir = "C:\Users\Pavlos-Dell\Desktop\Further Learning\edX\Programming with Python for Data Science\DAT210x\Module4"
 os.chdir(dataDir)
 
 
@@ -27,7 +27,7 @@ os.chdir(dataDir)
 # as opposed to simply capturing your datasets most variant directions.
 
 # Isomap operates by first computing each record's nearest neighbours. This is done
-# by comparing each sample to tevery other sample in the dataset. Only a samples
+# by comparing each sample to every other sample in the dataset. Only a sample's
 # K-nearest samples qualify for being included in its nearest neighbourhood samples list.
 # A neighbourhood graph is then constructed by linking each sample to its K- nearest 
 # neighbours. The result is similar to a map of roads that is traversed in order to move
