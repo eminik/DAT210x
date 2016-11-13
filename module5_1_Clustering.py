@@ -5,14 +5,6 @@ Created on Sat Oct 29 18:11:05 2016
 @author: Artemis Nika
 """
 
-
-import os
-
-
-#dataDir = "C:\Users\Pavlos-Dell\Desktop\Further Learning\edX\Programming with Python for Data Science\DAT210x\Module4"
-#os.chdir(dataDir)
-
-
 ## K-Means
 # Clustering groups samples that are similarn within the same cluster. The more similar the samples belonging to 
 # a cluster group are (and conversely, the more dissimilar samples in separate groups), the better the clustering 

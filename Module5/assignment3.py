@@ -3,6 +3,8 @@ from datetime import timedelta
 import matplotlib.pyplot as plt
 import matplotlib
 
+from sklearn.cluster import KMeans
+
 matplotlib.style.use('ggplot') # Look Pretty
 
 #

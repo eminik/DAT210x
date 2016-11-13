@@ -1,9 +1,14 @@
 import pandas as pd
-
+import os
 import matplotlib.pyplot as plt
 import matplotlib
 
+from sklearn.cluster import KMeans
+
 matplotlib.style.use('ggplot') # Look Pretty
+
+dataDir = "C:/Users/Pavlos-Dell/Desktop/Further Learning/edX/Programming with Python for Data Science/DAT210x/Module5"
+os.chdir(dataDir)
 
 def showandtell(title=None):
   if title != None: plt.savefig(title + ".png", bbox_inches='tight', dpi=300)
@@ -23,7 +28,13 @@ def showandtell(title=None):
 # Convert the date using pd.to_datetime, and the time using pd.to_timedelta
 #
 # .. your code here ..
+cdrData = pd.read_csv("Datasets/CDR.csv")
+print(cdrData.head())
 
+cdrData["CallDate"] = pd.to_datetime(cdrData["CallDate"], format="%Y/%m/%d")
+cdrData["CallTime"] = pd.to_timedelta(cdrData["CallTime"])
+print(cdrData.head())
+print(cdrData.dtypes)
 
 #
 # TODO: Get a distinct list of "In" phone numbers (users) and store the values in a
@@ -31,18 +42,18 @@ def showandtell(title=None):
 # Hint: https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.tolist.html
 #
 # .. your code here ..
-
+distinctInNumbers = cdrData.In.unique().tolist()
 
 # 
 # TODO: Create a slice called user1 that filters to only include dataset records where the
 # "In" feature (user phone number) is equal to the first number on your unique list above
 #
 # .. your code here ..
-
+user1 = cdrData.loc[cdrData.In == distinctInNumbers[1], :]
 
 # INFO: Plot all the call locations
 user1.plot.scatter(x='TowerLon', y='TowerLat', c='gray', alpha=0.1, title='Call Locations')
-showandtell()  # Comment this line out when you're ready to proceed
+#showandtell()  # Comment this line out when you're ready to proceed
 
 
 #
@@ -50,7 +61,7 @@ showandtell()  # Comment this line out when you're ready to proceed
 # is where domain expertise comes into play. Your intuition tells you that people are likely
 # to behave differently on weekends:
 #
-# On Weekdays:
+# On Weekends:
 #   1. People probably don't go into work
 #   2. They probably sleep in late on Saturday
 #   3. They probably run a bunch of random errands, since they couldn't during the week
@@ -69,6 +80,9 @@ showandtell()  # Comment this line out when you're ready to proceed
 #
 # .. your code here ..
 
+user1 = user1.loc[user1.CallDate.dt.dayofweek.isin([5, 6]), :]
+print(user1)
+
 
 #
 # TODO: Further filter it down for calls that are came in either before 6AM OR after 10pm (22:00:00).
@@ -79,7 +93,9 @@ showandtell()  # Comment this line out when you're ready to proceed
 # slice, print out its length:
 #
 # .. your code here ..
-
+user1 = user1.loc[(user1.CallTime < "06:00:00") | (user1.CallTime > '22:00:00'), :]
+print(user1.head())
+print(user1.shape[0])
 
 #
 # INFO: Visualize the dataframe with a scatter plot as a sanity check. Since you're familiar
@@ -93,9 +109,9 @@ showandtell()  # Comment this line out when you're ready to proceed
 # caller's residence:
 fig = plt.figure()
 ax = fig.add_subplot(111)
-ax.scatter(user1.TowerLon,user1.TowerLat, c='g', marker='o', alpha=0.2)
+ax.scatter(x=user1.TowerLon, y=user1.TowerLat, c='g', marker='o', alpha=0.2)
 ax.set_title('Weekend Calls (<6am or >10p)')
-showandtell()  # TODO: Comment this line out when you're ready to proceed
+#showandtell()  # TODO: Comment this line out when you're ready to proceed
 
 
 
@@ -114,9 +130,13 @@ showandtell()  # TODO: Comment this line out when you're ready to proceed
 # Hint: Make sure you graph the CORRECT coordinates. This is part of your domain expertise.
 #
 # .. your code here ..
+model1 = KMeans(n_clusters=1)
+model1.fit(user1[["TowerLat", "TowerLon"]])
+centroids = model1.cluster_centers_
 
-
-showandtell()  # TODO: Comment this line out when you're ready to proceed
+ax.scatter(x=user1.TowerLon, y=user1.TowerLat, c='g', marker='o', alpha=0.2)
+ax.scatter(x=centroids[:, 1], y=centroids[:, 0], c='r', marker="x")
+#showandtell()  # TODO: Comment this line out when you're ready to proceed
 
 
 
@@ -125,4 +145,33 @@ showandtell()  # TODO: Comment this line out when you're ready to proceed
 # locations. You might want to use a for-loop, unless you enjoy typing.
 #
 # .. your code here ..
+def isolateHomeLocation(df):
+	"""For each user isolate weekend calls before 6am or after 10pm and approximate their home location"""
 
+	distinctInNumbers = df.In.unique().tolist()
+	homeDict = {}
+	print(distinctInNumbers)
+
+	for number in distinctInNumbers:
+		mask = (df.In == number) &\
+			(df.CallDate.dt.dayofweek.isin([5, 6])) &\
+			((df.CallTime < "06:00:00") | (df.CallTime > '22:00:00'))
+		print(df.loc[mask, :])
+		model = KMeans(n_clusters=1)
+		model.fit(df.loc[mask, ["TowerLon", "TowerLat"]])
+		clusters = model.cluster_centers_
+		homeDict[number] = clusters
+
+		fig = plt.figure(number)
+		ax = fig.add_subplot(111)
+		ax.scatter(x=df.loc[mask, "TowerLon"], y = df.loc[mask, "TowerLat"], c='g', marker='o', alpha=0.2)
+		ax.scatter(x=clusters[:, 0], y = clusters[:, 1], c='r', marker="x")
+		ax.set_title('User: {0}'.format(str(number)))
+		plt.show()
+
+	return(homeDict)
+
+
+homeLoc = isolateHomeLocation(cdrData)
+
+print(homeLoc)
