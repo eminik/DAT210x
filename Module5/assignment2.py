@@ -49,7 +49,7 @@ distinctInNumbers = cdrData.In.unique().tolist()
 # "In" feature (user phone number) is equal to the first number on your unique list above
 #
 # .. your code here ..
-user1 = cdrData.loc[cdrData.In == distinctInNumbers[1], :]
+user1 = cdrData.loc[cdrData.In == distinctInNumbers[0], :]
 
 # INFO: Plot all the call locations
 user1.plot.scatter(x='TowerLon', y='TowerLat', c='gray', alpha=0.1, title='Call Locations')

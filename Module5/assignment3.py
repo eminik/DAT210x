@@ -19,12 +19,12 @@ def showandtell(title=None):
   exit()
 
 def clusterInfo(model):
-  print "Cluster Analysis Inertia: ", model.inertia_
-  print '------------------------------------------'
+  print("Cluster Analysis Inertia: ", model.inertia_)
+  print('------------------------------------------')
   for i in range(len(model.cluster_centers_)):
-    print "\n  Cluster ", i
-    print "    Centroid ", model.cluster_centers_[i]
-    print "    #Samples ", (model.labels_==i).sum() # NumPy Power
+    print("\n  Cluster ", i)
+    print("    Centroid ", model.cluster_centers_[i])
+    print("    #Samples ", (model.labels_==i).sum()) # NumPy Power
 
 # Find the cluster with the least # attached nodes
 def clusterWithFewestSamples(model):
@@ -35,8 +35,19 @@ def clusterWithFewestSamples(model):
     if minSamples > (model.labels_==i).sum():
       minCluster = i
       minSamples = (model.labels_==i).sum()
-  print "\n  Cluster With Fewest Samples: ", minCluster
-  return (model.labels_==minCluster)
+  print("\n  Cluster With Fewest Samples: ", minCluster)
+  return(model.labels_==minCluster)
+
+def clusterWithMostSamples(model):
+  # Ensure there's at least on cluster...
+  maxSamples = len(model.labels_)
+  maxCluster = 0
+  for i in range(len(model.cluster_centers_)):
+    if maxSamples < (model.labels_ == i).sum():
+      maxCluster = i
+      maxSamples = (model.labels_ == i).sum()
+  print("\n  Cluster With Most Samples: ", maxCluster)
+  return(model.cluster_centers_[maxCluster])
 
 
 def doKMeans(data, clusters=0):
@@ -50,6 +61,14 @@ def doKMeans(data, clusters=0):
   # This is part of your domain expertise.
   #
   # .. your code here ..
+  model = KMeans(n_clusters=clusters)
+  model.fit(data[["TowerLat", "TowerLon"]])
+  print(model.cluster_centers_)
+
+  fig = plt.figure()
+  ax = fig.add_subplot(111)
+  ax.scatter(x=data.TowerLat, y=data.TowerLon, c='g', alpha=0.3, marker='o')
+  ax.scatter(x=model.cluster_centers_[:, 0], y=model.cluster_centers_[:, 1], c='r', marker="x")
   return model
 
 
@@ -59,10 +78,12 @@ def doKMeans(data, clusters=0):
 # Convert the date using pd.to_datetime, and the time using pd.to_timedelta
 #
 # .. your code here ..
+cdrData = pd.read_csv("Datasets/CDR.csv")
+cdrData["CallDate"] = pd.to_datetime(cdrData["CallDate"], format="%Y/%m/%d")
+cdrData["CallTime"] = pd.to_timedelta(cdrData["CallTime"])
 
-
-
-
+print(cdrData.dtypes)
+print(cdrData.head())
 
 #
 # TODO: Get a distinct list of "In" phone numbers (users) and store the values in a
@@ -71,7 +92,7 @@ def doKMeans(data, clusters=0):
 #
 # .. your code here ..
 
-
+distinctInNumbers = cdrData.In.unique().tolist()
 #
 # INFO: The locations map above should be too "busy" to really wrap your head around. This
 # is where domain expertise comes into play. Your intuition tells you that people are likely
@@ -91,19 +112,19 @@ def doKMeans(data, clusters=0):
 
 
 
-print "\n\nExamining person: ", 0
+print("\n\nExamining person: ", 0)
 # 
 # TODO: Create a slice called user1 that filters to only include dataset records where the
 # "In" feature (user phone number) is equal to the first number on your unique list above
 #
 # .. your code here ..
-
+user1 = cdrData.loc[cdrData.In == distinctInNumbers[0], :]
 
 #
 # TODO: Alter your slice so that it includes only Weekday (Mon-Fri) values.
 #
 # .. your code here ..
-
+user1 = user1.loc[user1.CallDate.dt.dayofweek.isin([0, 1, 2, 3, 4]), :]
 
 #
 # TODO: The idea is that the call was placed before 5pm. From Midnight-730a, the user is
@@ -113,14 +134,18 @@ print "\n\nExamining person: ", 0
 #
 # .. your code here ..
 
+user1 = user1.loc[(user1.CallTime < "17:00:00"), :]
 
 #
 # TODO: Plot the Cell Towers the user connected to
 #
 # .. your code here ..
 
-
-
+fig = plt.figure()
+ax = fig.add_subplot(111)
+ax.scatter(x=user1.TowerLat, y=user1.TowerLon, c='g', alpha=0.3, marker='o')
+ax.set_title("Cell Towers for User {}".format(str(distinctInNumbers[0])))
+plt.show()
 #
 # INFO: Run K-Means with K=3 or K=4. There really should only be a two areas of concentration. If you
 # notice multiple areas that are "hot" (multiple areas the usr spends a lot of time at that are FAR
@@ -139,7 +164,7 @@ model = doKMeans(user1, 3)
 # work, between the midnight and 5pm?
 midWayClusterIndices = clusterWithFewestSamples(model)
 midWaySamples = user1[midWayClusterIndices]
-print "    Its Waypoint Time: ", midWaySamples.CallTime.mean()
+print("    Its Waypoint Time: ", midWaySamples.CallTime.mean())
 
 
 #
@@ -148,4 +173,38 @@ print "    Its Waypoint Time: ", midWaySamples.CallTime.mean()
 ax.scatter(model.cluster_centers_[:,1], model.cluster_centers_[:,0], s=169, c='r', marker='x', alpha=0.8, linewidths=2)
 #
 # Then save the results:
-showandtell('Weekday Calls Centroids')  # Comment this line out when you're ready to proceed
+#showandtell('Weekday Calls Centroids')  # Comment this line out when you're ready to proceed
+
+
+
+
+
+def isolateWorkLocation(df):
+  """For each user isolate weekdays before 5pm and get their work location"""
+
+  distinctInNumbers = df.In.unique().tolist()
+  workDict = {}
+  print(distinctInNumbers)
+
+  for number in distinctInNumbers:
+    mask = (df.In == number) &\
+      (df.CallDate.dt.dayofweek.isin([0, 1, 2, 3, 4])) &\
+      (df.CallTime < "17:00:00")
+    print(df.loc[mask, :])
+    model = doKMeans(df.loc[mask, :], 4)
+    cluster = clusterWithMostSamples(model)
+    workDict[number] = cluster
+
+    #fig = plt.figure(number)
+    #ax = fig.add_subplot(111)
+    #ax.scatter(x=df.loc[mask, "TowerLat"], y = df.loc[mask, "TowerLon"], c='g', marker='o', alpha=0.2)
+    #ax.scatter(x=cluster[0], y = cluster[1], c='r', marker="x")
+    #ax.set_title('User: {0}'.format(str(number)))
+  #plt.show()
+  return(workDict)
+
+
+workLoc = isolateWorkLocation(cdrData)
+print(workLoc)
+
+
